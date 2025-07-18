@@ -64,6 +64,6 @@ public class Player : MonoBehaviour
     private void Update()
     {
         // 执行当前状态的 Update() 更新方法
-        stateMachine.currentState.Update();
+        stateMachine.UpdateActiveState();
     }
 }

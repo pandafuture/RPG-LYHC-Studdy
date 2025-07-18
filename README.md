@@ -480,3 +480,25 @@
             stateMachine.ChangeState(player.idleState);
     }
     ```
+
+
+
+
+## （四）整理
+1. 在 **StateMachine 脚本** 中添加一个更新当前状态的方法 **UpdateActiveState()**
+    ```
+    // 执行当前状态的更新
+    public void UpdateActiveState()
+    {
+        currentState.Update();
+    }
+    ```
+
+2. 修改 **Player 脚本** 中的 **Update() 方法** ，提高代码可读性
+    ```
+    private void Update()
+    {
+        // 执行当前状态的 Update() 更新方法
+        stateMachine.UpdateActiveState();
+    }
+    ```

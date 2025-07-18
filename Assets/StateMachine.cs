@@ -31,4 +31,11 @@ public class StateMachine
         // 进入新状态
         currentState.Enter();
     }
+
+
+    // 执行当前状态的更新
+    public void UpdateActiveState()
+    {
+        currentState.Update();
+    }
 }
