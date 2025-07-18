@@ -15,8 +15,8 @@ public class Player_IdleState : EntityState  // 继承 EntityState 类
     {
         base.Update();
 
-        // 按下 F 键，切换为移动状态
-        if (Input.GetKeyDown(KeyCode.F))
+        // 如果玩家水平移动输入不为 0 ，切换为移动状态
+        if (player.moveInput.x != 0)
             stateMachine.ChangeState(player.moveState);
     }
 }

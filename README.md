@@ -355,3 +355,128 @@
             stateMachine.ChangeState(player.idleState);
     }
     ```
+
+
+
+
+## （三）设置新输入系统
+1. 在 **包管理器** 中安装 **Input System** ，并把 **项目设置** 中的 **玩家** 的 **活动输入处理** 改为 **两个**
+
+2. 在 **Assets 文件夹** 中新建一个文件夹 **InputSystem 文件夹** ，在里面新建一个 **Input Action** 并命名为 **PlayerInputSet**
+
+3. 打开 **PlayerInputSet Input Action**
+    - 点击左上角，新建一个控制方案 **add control scheme** ，命名为 **Keyboard & Mouse**
+    - 添加 **Keyboard 键盘** 和 **Mouse 鼠标** ，最后保存 
+    - 新建一个 **Player 玩家动作地图**
+    - 将 **Action** 命名为 **Movement** ，修改 **Action Type** 为 **Value** ，修改 **Control Type** 为 **Vector2**
+    - 清空 **Movement** 下的内容
+    - 点击 **添加 Actions 加号** ，添加 **Add Up\Down\Left\Right Component**
+    - 打开 **2D Vector**
+    - 点击 **Up** ，设置 **Keyboard & Mouse** 为勾选
+    - 设置 **Up** 的 **Path** ，点击 **Listen** ，按下 **W 键**
+    - 同样的方法设置 **Down** 、**Left** 、**Right**
+    - 最后 **保存**
+  
+4. 点击 **PlayerInputSet** ，勾选 **检查器** 中的 **Create C# Class** 然后 **Apply**
+
+
+5. 在 **Player 脚本** 中
+    - 新建一个 **玩家输入集变量 input**
+    - 在 **Awake()** 中 **分配一个新的玩家输入集**
+    - 在 **OnEnable()** 中启用玩家对象时，启用输入系统
+    - 在 **OnDisable()** 中禁用玩家时，禁用输入系统
+    ```
+    // 声明一个玩家输入集的变量
+    private PlayerInputSet input;
+    ```
+    ```
+    private void Awake()
+    {
+        // 分配一个新状态机实例
+        stateMachine = new StateMachine();
+        // 分配一个新的玩家输入系统
+        input = new PlayerInputSet();
+
+        // 分配一个 Idle State 新状态实例，要传入状态机实例，和状态名
+        idleState = new Player_IdleState(this, stateMachine, "idle");
+        // 分配一个 Move State 新状态实例
+        moveState = new Player_MoveState(this, stateMachine, "move");
+    }
+    ```
+    ```
+    // 启用玩家对象时，启用输入系统
+    private void OnEnable()
+    {
+        // 执行输入启用
+        input.Enable();
+    }
+
+    // 禁用玩家对象时，禁用输入系统
+    private void OnDisable()
+    {
+        // 执行输入禁用
+        input.Disable();
+    }
+    ```
+
+6. 在 **Player 脚本** 中添加 **移动的方法**
+    ```
+    // 启用玩家对象时，启用输入系统
+    private void OnEnable()
+    {
+        // 执行输入启用
+        input.Enable();
+
+        // 开始按下
+        //input.Player.Movement.started
+        // 持续按下
+        input.Player.Movement.performed += ctx => Debug.Log(ctx.ReadValue<Vector2>());
+        // 停止按下
+        //input.Player.Movement.canceled
+    }
+    ```
+
+7. 在 **Player 脚本** 中添加 **移动输入值变量** 并修改 **移动方法**
+    ```
+    // 获取移动输入的值
+    public Vector2 moveInput;
+    ```
+    ```
+    // 持续按下，会分配新值给移动输入变量
+    input.Player.Movement.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
+    // 停止按下，会重置移动输入变量
+    input.Player.Movement.canceled += ctx => moveInput = Vector2.zero;
+    ```
+
+8. 在 **Unity** 中打开 **PlayerInputSet Actions** ，点击 **2D Vector** ，把 **Mode** 改为 **Digital** ，最后 **保存** 。让同时按下 W 和 D 时，X 和 Y 为 1 或 -1 。
+
+9. 封装 **Player 脚本** 的 **移动输入变量**
+    ```
+    // 获取移动输入的值
+    public Vector2 moveInput {  get; private set; }
+    ```
+
+10. 修改 **Player_IdleState 脚本** 中 **切换为移动状态的条件**
+    ```
+    public override void Update()
+    {
+        base.Update();
+
+        // 如果玩家水平移动输入不为 0 ，切换为移动状态
+        if (player.moveInput.x != 0)
+            stateMachine.ChangeState(player.moveState);
+    }
+    ```
+
+11. 修改 **Player_MoveState 脚本** 中 **切换为空闲状态的条件
+    ```
+    public override void Update()
+    {
+        base.Update();
+
+
+        // 如果玩家的水平移动输入为 0 ，切换到空闲状态
+        if (player.moveInput.x == 0)
+            stateMachine.ChangeState(player.idleState);
+    }
+    ```

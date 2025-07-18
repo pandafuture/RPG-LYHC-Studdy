@@ -15,8 +15,8 @@ public class Player_MoveState : EntityState  // 继承自 EntityState 类
         base.Update();
 
 
-        // 按下 G 键，切换到空闲状态
-        if (Input.GetKeyDown(KeyCode.G))
+        // 如果玩家的水平移动输入为 0 ，切换到空闲状态
+        if (player.moveInput.x == 0)
             stateMachine.ChangeState(player.idleState);
     }
 }
