@@ -4,15 +4,18 @@ using UnityEngine;
 
 
 // 作为所有状态的父类
-public class EntityState  // 不用继承任何类
+// abstract 只是作为抽象类蓝图，无法直接使用，如果要使用就只能继承 EntityState 类后再使用
+public abstract class EntityState  // 不用继承任何类
 {
+    protected Player player;  // 声明一个玩家变量
     protected StateMachine stateMachine;  // 声明一个状态机，用来访问
     protected string stateName;  // 状态名
 
 
-    // 构造函数，为这个类设置默认变量（状态机，状态名）。当创建这个类的新实例时会自动调用
-    public EntityState(StateMachine stateMachine ,string stateName)
+    // 构造函数，为这个类设置默认变量（玩家，状态机，状态名）。当创建这个类的新实例时会自动调用
+    public EntityState(Player player, StateMachine stateMachine, string stateName)
     {
+        this.player = player;
         this.stateMachine = stateMachine;
         this.stateName = stateName;
     }

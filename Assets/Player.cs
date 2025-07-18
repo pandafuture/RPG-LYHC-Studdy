@@ -8,8 +8,9 @@ public class Player : MonoBehaviour
     private StateMachine stateMachine;
 
     // 声明一个 idle 状态
-    private EntityState idleState;
-
+    public Player_IdleState idleState {  get; private set; }
+    // 声明一个 move 状态
+    public Player_MoveState moveState {  get; private set; }
 
     private void Awake()
     {
@@ -17,7 +18,9 @@ public class Player : MonoBehaviour
         stateMachine = new StateMachine();
 
         // 分配一个 Idle State 新状态实例，要传入状态机实例，和状态名
-        idleState = new EntityState(stateMachine, "Idle State");
+        idleState = new Player_IdleState(this, stateMachine, "idle");
+        // 分配一个 Move State 新状态实例
+        moveState = new Player_MoveState(this, stateMachine, "move");
     }
 
 

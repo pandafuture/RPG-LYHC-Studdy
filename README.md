@@ -11,6 +11,7 @@
 
 
 # 二、有限状态机（FSM）
+## （一）创建有限状态机
 1. 新建三个脚本 **EntityState 脚本** 和 **StateMachine 脚本** 和 **Player 脚本**
     - **StateMachine 状态机脚本** 用来管理状态的切换
 
@@ -211,3 +212,146 @@
     ```
 
 14. 在 **Unity** 中新建一个空对象 **Player** ，把 **Player 脚本** 挂载上去，进行测试
+
+
+
+
+## （二）添加新状态完善状态机基本结构
+1. 把 **EntityState 类** 设为 **抽象类**
+    ```
+    // abstract 只是作为抽象类蓝图，无法直接使用，如果要使用就只能继承 EntityState 类后再使用
+    public abstract class EntityState  // 不用继承任何类
+    {
+        ......
+    }
+    ```
+
+2.  在 **Unity** 中新建一个脚本 **Player_IdleState 脚本** ，然后清空代码，修改继承为 **EntityState 类** ，在创建 **构造函数**
+    ```
+    public class Player_IdleState : EntityState  // 继承 EntityState 类
+    {
+        // 创建构造函数
+        public Player_IdleState(StateMachine stateMachine, string stateName) : base(stateMachine, stateName)
+        {
+
+        }
+    }
+    ```
+
+3.  在 **Player 脚本** 中修改 **idleState 空闲状态变量** 和 **其分配** ，最后进行测试
+    ```
+    // 声明一个 idle 状态
+    private Player_IdleState idleState;
+    ```
+    ```
+    private void Awake()
+    {
+        // 分配一个新状态机实例
+        stateMachine = new StateMachine();
+
+        // 分配一个 Idle State 新状态实例，要传入状态机实例，和状态名
+        idleState = new Player_IdleState(stateMachine, "idle");
+    }
+    ```
+
+4.  在 **Unity** 中新建一个脚本 **Player_MoveState 脚本**
+    - 清空代码
+    - 修改继承为 **EntityState 类**
+    - 创建 **构造函数**
+    ```
+    public class Player_MoveState : EntityState  // 继承自 EntityState 类
+    {
+        // 生成构造函数
+        public Player_MoveState(StateMachine stateMachine, string stateName) : base(stateMachine, stateName)
+        {
+
+        }
+    }
+    ```
+
+5.  在 **Player 脚本** 中
+    - 声明一个 **move 状态变量**
+    - 分配一个 **MoveState 新状态实例**
+    ```
+    // 声明一个 move 状态
+    private Player_MoveState moveState;
+    ```
+    ```
+    // 分配一个 Move State 新状态实例
+    moveState = new Player_MoveState(stateMachine, "move");
+    ```
+
+6.  在 **EntityState 脚本** 中创建 **player 变量**，并在 **构造函数** 中 **分配 player** ，用来访问状态内的 Player
+    ```
+    protected Player player;  // 声明一个玩家变量
+    ```
+    ```
+    // 构造函数，为这个类设置默认变量（玩家，状态机，状态名）。当创建这个类的新实例时会自动调用
+    public EntityState(Player player, StateMachine stateMachine, string stateName)
+    {
+        this.player = player;
+        this.stateMachine = stateMachine;
+        this.stateName = stateName;
+    }
+    ```
+
+7.  修改 **Player_IdleState 脚本** 和 **Player_MoveState 脚本** 的 **构造函数** 和 **Player 脚本** 的 **状态** 和 **状态分配**
+    ```
+    // 创建构造函数
+    public Player_IdleState(Player player, StateMachine stateMachine, string stateName) : base(player, stateMachine, stateName)
+    {
+
+    }
+    ```
+    ```
+    public class Player_MoveState : EntityState  // 继承自 EntityState 类
+    {
+        // 生成构造函数
+        public Player_MoveState(Player player, StateMachine stateMachine, string stateName) : base(player, stateMachine, stateName)
+        {
+        }
+    }
+    ```
+    ```
+    // 声明一个 idle 状态
+    public Player_IdleState idleState {  get; private set; }
+    // 声明一个 move 状态
+    public Player_MoveState moveState {  get; private set; }
+
+
+    private void Awake()
+    {
+        // 分配一个新状态机实例
+        stateMachine = new StateMachine();
+
+        // 分配一个 Idle State 新状态实例，要传入状态机实例，和状态名
+        idleState = new Player_IdleState(this, stateMachine, "idle");
+        // 分配一个 Move State 新状态实例
+        moveState = new Player_MoveState(this, stateMachine, "move");
+    }
+    ```
+
+8. 在 **Player_IdleState 脚本** 中添加 **切换到移动状态的方法**
+    ```
+    public override void Update()
+    {
+        base.Update();
+
+        // 按下 F 键，切换为移动状态
+        if (Input.GetKeyDown(KeyCode.F))
+            stateMachine.ChangeState(player.moveState);
+    }
+    ```
+
+9. 在 **Player_MoveState 脚本** 中添加 **切换到空闲状态的方法**
+    ```
+    public override void Update()
+    {
+        base.Update();
+
+
+        // 按下 G 键，切换到空闲状态
+        if (Input.GetKeyDown(KeyCode.G))
+            stateMachine.ChangeState(player.idleState);
+    }
+    ```
